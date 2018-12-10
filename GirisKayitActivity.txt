@@ -1,0 +1,114 @@
+package com.example.mehmet.buradayaim;
+
+import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+public class GirisKayitActivity extends AppCompatActivity {
+    private TextInputLayout  tilEmail,tilSifre,tilKullaniciAdi;
+    private TextInputEditText email,sifre,kullaniciadi;
+private ProgressBar progresBarCircle;
+    private FirebaseAuth mAuth;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_giris_kayit);
+   //initilize ope.
+        mAuth = FirebaseAuth.getInstance();
+    tilEmail=findViewById(R.id.tilEmail);
+    email=findViewById(R.id.email);
+    tilSifre=findViewById(R.id.tilSifre);
+    sifre=findViewById(R.id.sifre);
+    tilKullaniciAdi=findViewById(R.id.tilKullaniciAdi);
+  kullaniciadi=findViewById(R.id.kullaniciadi);
+   progresBarCircle=findViewById(R.id.progresBarCircle);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 1, Menu.NONE,"Çýkýþ").setIcon(R.drawable.ic_exit_to_app_beyaz_24dp).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    Toast.makeText(this,"111",Toast.LENGTH_SHORT).show();
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void profilKaydet(View view) {
+    }
+
+    public void kayitOl(View view) {
+        if (!validateForm())
+            return;
+
+        progresBarCircle.setVisibility(View.VISIBLE);
+        mAuth.createUserWithEmailAndPassword(email.getText().toString(), sifre.getText().toString())
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task){
+progresBarCircle.setVisibility(View.GONE);
+                        if (task.isSuccessful()) {
+                            Toast.makeText(GirisKayitActivity.this, "Kayýt baþarýlý",
+                                    Toast.LENGTH_SHORT).show();
+
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Toast.makeText(GirisKayitActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            Log.w("TAG", "createUserWithEmail:failure", task.getException());
+                        }
+
+
+
+
+                    }
+                });
+    }
+    public void girisYap(View view) {
+        if(!validateForm())
+            return;
+    }
+    private boolean validateForm(){
+        boolean valid=true;
+        tilEmail.setError(null);
+        tilSifre.setError(null);
+        if(TextUtils.isEmpty(email.getText()) || TextUtils.isEmpty(sifre.getText())){
+            if(TextUtils.isEmpty(email.getText()))
+            {
+                tilEmail.setError("Lütfen mail adresinizi giriniz");
+                valid=false;
+            }
+            else {
+                if (!email.getText().toString().contains("@")) {
+                    tilEmail.setError("Lütfen geçerli bir mail adresi giriniz");
+                    valid = false;
+                }
+            }
+        }
+        if(TextUtils.isEmpty(sifre.getText())){
+            tilSifre.setError("Lütfen þifrenizi giriniz");
+        valid=false;
+        }
+        return valid;
+    }
+}
+
